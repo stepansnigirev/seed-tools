@@ -1,0 +1,17 @@
+{
+  "name": "seed-tools",
+  "collaborators": [
+    "Stepan Snigirev <snigirev.stepan@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "seed_tools_bg.wasm",
+    "seed_tools.js",
+    "seed_tools.d.ts"
+  ],
+  "module": "seed_tools.js",
+  "types": "seed_tools.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
