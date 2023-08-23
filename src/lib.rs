@@ -41,12 +41,12 @@ pub fn double_mnemonic_from_entropy(entropystr: &str) -> Result<String, JsError>
 // slip132 converter
 
 #[derive(Serialize, Deserialize)]
-pub struct XYZPub{
-  pub xpub: String, // canonical
-  pub ypub: String, // nested segwit single key
-  pub zpub: String, // native segwit single key
-  pub Ypub: String, // nested segwit multisig
-  pub Zpub: String, // native segwit multisig
+pub struct XYZKey{
+  pub x: String, // canonical
+  pub y: String, // nested segwit single key
+  pub z: String, // native segwit single key
+  pub Y: String, // nested segwit multisig
+  pub Z: String, // native segwit multisig
 }
 
 fn replace_encode(payload: &[u8], version: &[u8]) -> Result<String, JsError> {
@@ -61,16 +61,25 @@ fn replace_encode(payload: &[u8], version: &[u8]) -> Result<String, JsError> {
 
 #[wasm_bindgen]
 pub fn slip132_convert(input: &str) -> Result<JsValue, JsError> {
-  if &input[1..4] != "pub" {
-    return Err(JsError::new("Must be a public key (start with ?pub...)"));
-  }
   let payload = base58::decode_check(input)?;
-  let res = XYZPub {
-    xpub: replace_encode(&payload, &vec![0x04, 0x88, 0xb2, 0x1e])?,
-    ypub: replace_encode(&payload, &vec![0x04, 0x9d, 0x7c, 0xb2])?,
-    zpub: replace_encode(&payload, &vec![0x04, 0xb2, 0x47, 0x46])?,
-    Ypub: replace_encode(&payload, &vec![0x02, 0x95, 0xb4, 0x3f])?,
-    Zpub: replace_encode(&payload, &vec![0x02, 0xaa, 0x7e, 0xd3])?,
+  let res = if &input[1..4] == "pub" {
+    XYZKey {
+      x: replace_encode(&payload, &vec![0x04, 0x88, 0xb2, 0x1e])?,
+      y: replace_encode(&payload, &vec![0x04, 0x9d, 0x7c, 0xb2])?,
+      z: replace_encode(&payload, &vec![0x04, 0xb2, 0x47, 0x46])?,
+      Y: replace_encode(&payload, &vec![0x02, 0x95, 0xb4, 0x3f])?,
+      Z: replace_encode(&payload, &vec![0x02, 0xaa, 0x7e, 0xd3])?,
+    }
+  } else if &input[1..4] == "prv" {
+    XYZKey {
+      x: replace_encode(&payload, &vec![0x04, 0x88, 0xad, 0xe4])?,
+      y: replace_encode(&payload, &vec![0x04, 0x9d, 0x78, 0x78])?,
+      z: replace_encode(&payload, &vec![0x04, 0xb2, 0x43, 0x0c])?,
+      Y: replace_encode(&payload, &vec![0x02, 0x95, 0xb0, 0x05])?,
+      Z: replace_encode(&payload, &vec![0x02, 0xaa, 0x7a, 0x99])?,
+    }
+  } else {
+    return Err(JsError::new("Should be ?pub or ?prv"));
   };
   Ok(serde_wasm_bindgen::to_value(&res)?)
 }
