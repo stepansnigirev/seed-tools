@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>Double seed</title>
+  <link rel="stylesheet" href="dark.css">
+</head>
+<body>
+  <h1>SLIP-132 converter</h1>
+  <p>
+    Enter your extended pubkey here and get all SLIP-132 variants:
+  </p>
+  <input type="text" placeholder="your extended key" id="input" style="min-width: 100%;">
+  <button id="convert">Convert</button>
+  <p id="output"></p>
+
+<script type="module">
+import init, { slip132_convert } from './pkg/seed_tools.js';
+
+window.seed_tools = {
+  init,
+  slip132_convert,
+}
+const btn = document.getElementById("convert");
+const input = document.getElementById("input");
+const output = document.getElementById("output");
+
+async function main(){
+  await seed_tools.init();
+  btn.addEventListener("click", ()=>{
+    try{
+      let result = window.seed_tools.slip132_convert(input.value);
+      output.innerHTML = "";
+      Object.values(result).forEach(v=>{
+        output.innerHTML += `${v}<br><br>`;
+      });
+    } catch (err) {
+      output.innerHTML = err;
+    }
+  })
+};
+main();
+</script>
+
+</body>
+</html>
+  
